@@ -10,8 +10,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboardjs/1.0.0/chessboard-1.0.0.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { background-color: #0b0e14; color: #ffffff; font-family: 'Inter', sans-serif; }
         .stat-panel { background: #11141d; border: 1px solid #2d3142; }
+
+        /* tùy biến giao diện bàn cờ giống Chess.com */
+        .board-b72b1 {
+            border: 4px solid #262421 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        /* Màu ô Trắng của Chess.com */
+        .white-1e1d7 {
+            background-color: #eeeed2 !important;
+            color: #769656 !important;
+        }
+        /* Màu ô Đen của Chess.com */
+        .black-3c85d {
+            background-color: #769656 !important;
+            color: #eeeed2 !important;
+        }
+        /* Chỉnh lại font số và chữ trên rìa bàn cờ cho thanh lịch */
+        .notation-322f9 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body class="p-4 md:p-10 flex items-center justify-center min-h-screen">
@@ -37,7 +61,7 @@
     <div id="game-screen" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-center hidden">
         <div class="md:col-span-7 flex flex-col items-center">
             <h2 class="text-xl font-black uppercase tracking-wider mb-4 text-zinc-400">Hệ Thống Đánh Giá Chỉ Số AI</h2>
-            <div id="myBoard" class="w-full max-w-[460px] shadow-2xl rounded-lg overflow-hidden border-4 border-zinc-800"></div>
+            <div id="myBoard" class="w-full max-w-[480px]"></div>
             <p id="status" class="mt-4 text-sm font-semibold text-yellow-500">Đến lượt bạn...</p>
         </div>
 
@@ -45,7 +69,7 @@
             <div class="p-6 rounded-xl stat-panel space-y-4">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
                     <h3 id="display-name" class="text-md font-black uppercase text-zinc-200 tracking-wide">PLAYER</h3>
-                    <a href="index.html" class="text-[9px] bg-zinc-800 text-zinc-400 font-bold px-2 py-1 rounded uppercase hover:bg-zinc-700 transition-colors">BXH 主</a>
+                    <a href="index.html" class="text-[9px] bg-zinc-800 text-zinc-400 font-bold px-2 py-1 rounded uppercase hover:bg-zinc-700 transition-colors">BXH CHÍNH</a>
                 </div>
                 
                 <div>
@@ -113,7 +137,6 @@
             $('#login-screen').addClass('hidden');
             $('#game-screen').removeClass('hidden');
             
-            // Xóa căn giữa màn hình của body để giao diện game hiển thị đẹp mắt ở trên cùng
             $('body').removeClass('flex items-center justify-center min-h-screen').addClass('block');
             
             initChessBoard();
