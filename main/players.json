@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Nguyen Quoc Hung",
+    "intel": 550,
+    "biq": 530,
+    "tac": 495,
+    "exp": 600
+  },
+  {
+    "name": "Hikaru Nakamura",
+    "intel": 450,
+    "biq": 470,
+    "tac": 490,
+    "exp": 480
+  },
+  {
+    "name": "Gukesh D",
+    "intel": 460,
+    "biq": 440,
+    "tac": 455,
+    "exp": 360
+  }
+]
