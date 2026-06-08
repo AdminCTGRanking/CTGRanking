@@ -3,165 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChessTier | Ranking Board</title>
+    <title>ChessTier Bot | AI Game</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0b0e14; color: #ffffff; }
-        
-        .badge-ht1 { color: #ffd700; border: 1px solid #ffd700; background: rgba(255,215,0,0.1); }
-        .badge-ht2 { color: #f97316; border: 1px solid #f97316; background: rgba(249,115,22,0.1); }
-        .badge-ht3 { color: #fb923c; border: 1px solid #fb923c; background: rgba(251,146,60,0.1); }
-        .badge-lt1 { color: #94a3b8; border: 1px solid #94a3b8; background: rgba(148,163,184,0.1); }
-        .badge-lt2 { color: #64748b; border: 1px solid #64748b; background: rgba(100,116,139,0.1); }
-        
-        .stat-circle {
-            width: 34px; height: 34px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: #1a1d2b; border: 1.5px solid #2d3142;
-            font-size: 9px; font-weight: 800; color: #94a3b8;
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0e14; 
+            color: #ffffff; 
         }
-
-        .elo-box {
-            width: 55px; height: 42px; background: #3a1c1c;
-            color: #ff5e5e; display: flex; align-items: center;
-            justify-content: center; font-weight: 900; border-radius: 8px;
-            font-size: 16px;
+        /* Đảm bảo khung bàn cờ luôn có kích thước chuẩn, không bị sập về 0px */
+        #myBoard {
+            width: 100%;
+            max-width: 380px;
+            min-width: 280px;
+            margin: 0 auto;
+            border: 4px solid #2d3142;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background-color: #11141d;
         }
-
-        .player-row { background: #11141d; border-radius: 4px; margin-bottom: 4px; }
-        .rank-number { font-style: italic; font-weight: 900; color: #4b5563; }
+        .stat-panel {
+            background: #11141d;
+            border: 1px solid #2d3142;
+        }
+        .bar-bg {
+            width: 100%;
+            background-color: #1e293b;
+            height: 8px;
+            border-radius: 4px;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
+        }
     </style>
 </head>
-<body class="p-4 md:p-10">
-    <div class="max-w-5xl mx-auto">
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="login-screen" class="stat-panel p-6 rounded-xl w-full max-w-sm text-center shadow-2xl">
+        <a href="index.html" class="text-zinc-500 hover:text-yellow-500 text-xs font-bold block mb-4 text-left transition-colors">← Quay lại Bảng xếp hạng</a>
+        <h2 class="text-yellow-500 font-black tracking-wider text-2xl mb-1">CHESSTIER BOT</h2>
+        <p class="text-[10px] font-bold text-zinc-500 tracking-widest mb-6">CẤU HÌNH TRẬN ĐẤU AI VỚI BOT</p>
         
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-800 pb-6">
-            <div>
-                <h1 class="text-3xl font-black uppercase tracking-wider text-zinc-100">CHESS<span class="text-yellow-500">TIER</span></h1>
-                <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Official CTG Leaderboard System</p>
+        <input type="text" id="playerNameInput" placeholder="NHẬP TÊN TÀI KHOẢN CỦA BẠN..." class="w-full bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-white text-center mb-4 text-sm focus:outline-none focus:border-yellow-500 font-bold">
+        
+        <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800 text-left mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] font-bold text-zinc-500 tracking-wider">ĐỘ KHÓ CỦA BOT:</span>
+                <span id="diffLabel" class="text-yellow-500 font-black text-xs">TRUNG BÌNH (LV2)</span>
             </div>
-            <div class="flex gap-2">
-                <button onclick="clearLeaderboard()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-400 font-bold text-xs uppercase tracking-widest px-4 py-3 rounded-lg transition-colors">
-                    🧹 Reset Điểm Đấu
-                </button>
-                <a href="play.html" class="bg-yellow-500 hover:bg-yellow-600 text-black font-black text-xs uppercase tracking-widest px-5 py-3 rounded-lg shadow-lg transition-colors flex items-center gap-2">
-                    🤖 Đấu Với Bot AI
-                </a>
-            </div>
+            <input type="range" id="difficultyRange" min="1" max="3" value="2" class="w-full accent-yellow-500 cursor-pointer" oninput="updateDiffLabel(this.value)">
         </div>
 
-        <div class="grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest border-b border-zinc-800">
-            <div class="col-span-1">#</div>
-            <div class="col-span-5">Player</div>
-            <div class="col-span-2 text-center">Elo</div>
-            <div class="col-span-4 text-center">Tiers</div>
-        </div>
-
-        <div id="ranking-list" class="mt-2"></div>
+        <button onclick="startGameWithPlayer()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-black py-3.5 rounded-lg text-xs uppercase tracking-widest transition-colors shadow-lg">Bắt đầu đấu</button>
     </div>
 
+    <div id="game-screen" class="hidden w-full max-w-4xl flex flex-col md:flex-row gap-8 items-center justify-center">
+        
+        <div class="flex-1 w-full flex flex-col items-center">
+            <h3 class="text-zinc-500 font-black text-xs tracking-widest mb-4 uppercase">HỆ THỐNG ĐÁNH GIÁ CHỈ SỐ AI</h3>
+            <div id="myBoard"></div>
+            <p id="status" class="text-yellow-500 font-bold mt-4 text-sm">Đến lượt bạn...</p>
+        </div>
+
+        <div class="w-full md:w-80 stat-panel p-6 rounded-xl shadow-2xl">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-3 mb-4">
+                <span id="display-name" class="font-black text-zinc-100 text-base tracking-wide uppercase">PLAYER</span>
+                <span id="display-diff" class="text-[9px] font-black bg-zinc-800 text-yellow-500 px-2 py-1 rounded tracking-wider">BOT AI V1.0</span>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-xs text-zinc-400 font-semibold mb-1"><span>🧠 INT (Intelligence)</span><span id="int-val" class="text-blue-400 font-bold">0</span></div>
+                    <div class="bar-bg"><div id="int-bar" class="bar-fill bg-blue-500"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs text-zinc-400 font-semibold mb-1"><span>⚡ BIQ (Battle IQ)</span><span id="biq-val" class="text-red-400 font-bold">0</span></div>
+                    <div class="bar-bg"><div id="biq-bar" class="bar-fill bg-red-500"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs text-zinc-400 font-semibold mb-1"><span>🎯 TAC (Tactics)</span><span id="tac-val" class="text-yellow-500 font-bold">0</span></div>
+                    <div class="bar-bg"><div id="tac-bar" class="bar-fill bg-yellow-500"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs text-zinc-400 font-semibold mb-1"><span>🔥 EXP (Experience)</span><span id="exp-val" class="text-emerald-400 font-bold">0</span></div>
+                    <div class="bar-bg"><div id="exp-bar" class="bar-fill bg-emerald-500"></div></div>
+                </div>
+            </div>
+
+            <div class="text-center border-t border-zinc-800 pt-4 mt-6">
+                <span class="text-[9px] font-bold text-zinc-500 tracking-widest uppercase">DỰ ĐOÁN CẤP BẬC TỔNG HỢP</span>
+                <div id="predicted-rank" class="text-xl font-black text-zinc-600 mt-1 italic">CHƯA XÁC ĐỊNH</div>
+            </div>
+
+            <button onclick="resetGame()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs uppercase tracking-wider py-2.5 rounded-lg mt-4 transition-colors">Chơi ván mới</button>
+            <a href="index.html" class="block text-center text-zinc-500 hover:text-yellow-500 text-xs font-bold mt-4 transition-colors">← Về BXH Chính</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+
     <script>
-        function getTierInfo(score) {
-            if (score >= 450) return { label: "HT1", class: "badge-ht1" };
-            if (score >= 400) return { label: "LT1", class: "badge-lt1" };
-            if (score >= 340) return { label: "HT2", class: "badge-ht2" };
-            if (score >= 280) return { label: "LT2", class: "badge-lt2" };
-            return { label: "HT3", class: "badge-ht3" };
+        let board = null;
+        let game = new Chess();
+        let $status = $('#status');
+        let playerName = "";
+        let botDifficulty = 2;
+        let totalMoves = 0, tacticalMoves = 0, accurateMoves = 0, totalThinkTime = 0, lastMoveTime = Date.now();
+
+        const pieceValues = { p: 10, n: 30, b: 30, r: 50, q: 90, k: 9000 };
+
+        function updateDiffLabel(val) {
+            const labels = { "1": "DỄ (LV1)", "2": "TRUNG BÌNH (LV2)", "3": "KHÓ (LV3)" };
+            $('#diffLabel').html(labels[val]);
         }
 
-        function getRankName(totalElo) {
-            if (totalElo >= 1500) return "MASTER";
-            if (totalElo >= 1000) return "SEMI MASTER";
-            if (totalElo >= 600) return "PRO";
-            return "BEGINNER";
+        function startGameWithPlayer() {
+            let inputName = $('#playerNameInput').val().trim();
+            if (!inputName) { alert("Vui lòng nhập tên tài khoản!"); return; }
+            playerName = inputName;
+            botDifficulty = parseInt($('#difficultyRange').val());
+            
+            $('#display-name').html(playerName.toUpperCase());
+            $('#display-diff').html("BOT AI LV" + botDifficulty);
+            $('#login-screen').addClass('hidden');
+            $('#game-screen').removeClass('hidden');
+            
+            // Kích hoạt bàn cờ trễ 150ms để tránh lỗi sập kích thước div ẩn/hiện của ChessboardJS
+            setTimeout(initChessBoard, 150);
         }
 
-        function statCircle(label, score) {
-            const tier = getTierInfo(score);
-            const shortNames = { intel: 'INT', biq: 'BIQ', tac: 'TAC', exp: 'EXP' };
-            return `
-                <div class="flex flex-col items-center gap-1">
-                    <div class="stat-circle">${shortNames[label]}</div>
-                    <span class="${tier.class} text-[8px] font-black px-1.5 py-0.5 rounded min-w-[30px] text-center">${tier.label}</span>
-                </div>
-            `;
-        }
-
-        function render(data) {
-            const container = document.getElementById('ranking-list');
-            container.innerHTML = data.map((p, index) => {
-                const totalElo = p.intel + p.biq + p.tac + p.exp;
-                const rankName = getRankName(totalElo);
-
-                return `
-                <div class="player-row grid grid-cols-12 gap-4 px-6 py-4 items-center">
-                    <div class="col-span-1 rank-number text-lg">${index + 1}.</div>
+        function initChessBoard() {
+            board = Chessboard('myBoard', {
+                draggable: true,
+                position: 'start',
+                onDragStart: (src, pc) => !game.game_over() && pc.search(/^b/) === -1,
+                onDrop: (src, tgt) => {
+                    let move = game.move({ from: src, to: tgt, promotion: 'q' });
+                    if (move === null) return 'snapback';
                     
-                    <div class="col-span-5 flex items-center gap-4">
-                        <div class="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center font-black text-zinc-500 uppercase">
-                            ${p.name ? p.name.charAt(0) : "?"}
-                        </div>
-                        <div>
-                            <div class="font-bold text-base text-zinc-100">${p.name}</div>
-                            <div class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider italic">${rankName}</div>
-                        </div>
-                    </div>
+                    let thinkTime = (Date.now() - lastMoveTime) / 1000;
+                    totalThinkTime += thinkTime; totalMoves++;
+                    if (move.captured || move.san.includes('+')) tacticalMoves++;
+                    if (!move.captured && thinkTime < 3) accurateMoves++;
 
-                    <div class="col-span-2 flex justify-center">
-                        <div class="elo-box">${totalElo}</div>
-                    </div>
-
-                    <div class="col-span-4 flex justify-center gap-4">
-                        ${statCircle("intel", p.intel)}
-                        ${statCircle("biq", p.biq)}
-                        ${statCircle("tac", p.tac)}
-                        ${statCircle("exp", p.exp)}
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
-
-        async function init() {
-            let finalData = [];
-            
-            // 1. Lấy dữ liệu bot mặc định sẵn có từ file json
-            try {
-                const res = await fetch('players.json');
-                if (res.ok) {
-                    finalData = await res.json();
-                }
-            } catch (e) {
-                console.log("Chưa có file players.json hoặc lỗi đọc file, sử dụng danh sách trống.");
-            }
-
-            // 2. Lấy dữ liệu người chơi thực tế vừa đấu lưu từ localStorage
-            const localPlayers = JSON.parse(localStorage.getItem('custom_players')) || [];
-            
-            // Gộp dữ liệu: Nếu trùng tên người chơi cũ trong json, thay thế bằng điểm mới nhất
-            localPlayers.forEach(lp => {
-                let existingIdx = finalData.findIndex(p => p.name.toLowerCase() === lp.name.toLowerCase());
-                if (existingIdx !== -1) {
-                    finalData[existingIdx] = lp;
-                } else {
-                    finalData.push(lp);
-                }
+                    $status.html('Bot đang tính toán nước đi...');
+                    setTimeout(makeBotMove, 500);
+                },
+                onSnapEnd: () => board.position(game.fen()),
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
             });
-
-            // Sắp xếp BXH theo tổng điểm Elo giảm dần
-            finalData.sort((a, b) => (b.intel + b.biq + b.tac + b.exp) - (a.intel + a.biq + a.tac + a.exp));
-            render(finalData);
+            lastMoveTime = Date.now();
         }
 
-        function clearLeaderboard() {
-            if(confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử điểm đấu mới trên trình duyệt này không?")) {
-                localStorage.removeItem('custom_players');
-                init();
+        function makeBotMove() {
+            let moves = game.moves();
+            if (game.game_over()) { handleEnd(); return; }
+            
+            let selectedMove = null;
+            if (botDifficulty === 1) {
+                selectedMove = moves[Math.floor(Math.random() * moves.length)];
+            } else if (botDifficulty === 2) {
+                let verboseMoves = game.moves({ verbose: true });
+                let captureMoves = verboseMoves.filter(m => m.captured);
+                if (captureMoves.length > 0) {
+                    captureMoves.sort((a, b) => pieceValues[b.captured] - pieceValues[a.captured]);
+                    selectedMove = captureMoves[0].san;
+                } else {
+                    selectedMove = moves[Math.floor(Math.random() * moves.length)];
+                }
+            } else {
+                selectedMove = getBestMoveMinimax();
             }
+
+            game.move(selectedMove);
+            board.position(game.fen());
+            $status.html(`Đến lượt bạn (${playerName})...`);
+            lastMoveTime = Date.now();
+            if (game.game_over()) handleEnd();
         }
 
-        init();
+        function evaluateBoard(boardState) {
+            let score = 0;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    let piece = boardState[r][c];
+                    if (piece) {
+                        let val = pieceValues[piece.type];
+                        score += (piece.color === 'b' ? val : -val);
+                    }
+                }
+            }
+            return score;
+        }
+
+        function getBestMoveMinimax() {
+            let moves = game.moves();
+            let bestScore = -99999;
+            let bestMove = moves[0];
+            for (let i = 0; i < moves.length; i++) {
+                game.move(moves[i]);
+                let score = evaluateBoard(game.board());
+                game.undo();
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = moves[i];
+                }
+            }
+            return bestMove;
+        }
+
+        function handleEnd() {
+            $status.html('TRẬN ĐẤU KẾT THÚC!');
+            let fInt = Math.min(500, Math.max(100, (accurateMoves / (totalMoves || 1)) * 350 + 150));
+            let fTac = Math.min(500, Math.max(100, (tacticalMoves * 45) + 120));
+            let fBiq = Math.min(500, Math.max(100, 500 - ((totalThinkTime / (totalMoves || 1)) * 30)));
+            let fExp = Math.min(500, Math.max(100, (totalMoves * 15) + 100));
+
+            $('#int-val').html(Math.round(fInt)+" pt"); $('#int-bar').css('width', (fInt/500)*100+'%');
+            $('#biq-val').html(Math.round(fBiq)+" pt"); $('#biq-bar').css('width', (fBiq/500)*100+'%');
+            $('#tac-val').html(Math.round(fTac)+" pt"); $('#tac-bar').css('width', (fTac/500)*100+'%');
+            $('#exp-val').html(Math.round(fExp)+" pt"); $('#exp-bar').css('width', (fExp/500)*100+'%');
+            
+            let totalElo = fInt + fBiq + fTac + fExp;
+            let rank = "BEGINNER";
+            if (totalElo >= 1500) rank = "MASTER";
+            else if (totalElo >= 1000) rank = "SEMI MASTER";
+            else if (totalElo >= 600) rank = "PRO";
+            
+            $('#predicted-rank').html(rank).css('color', '#eab308');
+
+            let customPlayers = JSON.parse(localStorage.getItem('custom_players')) || [];
+            let existingIdx = customPlayers.findIndex(p => p.name.toLowerCase() === playerName.toLowerCase());
+            
+            let playerData = {
+                name: playerName,
+                intel: Math.round(fInt),
+                biq: Math.round(fBiq),
+                tac: Math.round(fTac),
+                exp: Math.round(fExp)
+            };
+
+            if (existingIdx !== -1) {
+                let oldTotal = customPlayers[existingIdx].intel + customPlayers[existingIdx].biq + customPlayers[existingIdx].tac + customPlayers[existingIdx].exp;
+                if (totalElo > oldTotal) customPlayers[existingIdx] = playerData;
+            } else {
+                customPlayers.push(playerData);
+            }
+            
+            localStorage.setItem('custom_players', JSON.stringify(customPlayers));
+            alert(`Trận đấu kết thúc! Chỉ số của bạn đã được cập nhật thành công lên Bảng xếp hạng trình duyệt.`);
+        }
+
+        function resetGame() {
+            game.reset(); board.start(); totalMoves = 0; tacticalMoves = 0; accurateMoves = 0; totalThinkTime = 0;
+            ['int', 'biq', 'tac', 'exp'].forEach(id => { $(`#${id}-val`).html("0"); $(`#${id}-bar`).css('width', '0%'); });
+            $('#predicted-rank').html("CHƯA XÁC ĐỊNH").css('color', '#475569');
+            $status.html(`Đến lượt bạn (${playerName})...`);
+            lastMoveTime = Date.now();
+        }
     </script>
 </body>
 </html>
