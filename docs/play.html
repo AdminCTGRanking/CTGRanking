@@ -120,13 +120,20 @@
         }
 
         function initChessBoard() {
-            board = Chessboard('myBoard', {
-                draggable: true, position: 'start',
-                onDragStart: onDragStart, onDrop: onDrop, onSnapEnd: onSnapEnd
-            });
-            lastMoveTime = Date.now();
-            $status.html(`Đến lượt bạn (${playerName})...`);
-        }
+    board = Chessboard('myBoard', {
+        draggable: true,
+        position: 'start',
+        onDragStart: onDragStart,
+        onDrop: onDrop,
+        onSnapEnd: onSnapEnd,
+        
+        // ĐOẠN CẦN THÊM: Chỉ đường dẫn về thư mục asset của bạn
+        // {piece} sẽ tự động được thư viện thay thế bằng "wP", "bK", v.v...
+        pieceTheme: 'assets/pieces/{piece}.png' 
+    });
+    lastMoveTime = Date.now();
+    $status.html(`Đến lượt bạn (${playerName})...`);
+}
 
         function onDragStart (source, piece, position, orientation) {
             if (game.game_over()) return false;
