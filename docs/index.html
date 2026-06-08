@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChessTier | Ranking Board</title>
+    <script src="https://cdn.tailwindcss.org"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b0e14; color: #ffffff; }
+        
+        .badge-ht1 { color: #ffd700; border: 1px solid #ffd700; background: rgba(255,215,0,0.1); }
+        .badge-ht2 { color: #f97316; border: 1px solid #f97316; background: rgba(249,115,22,0.1); }
+        .badge-ht3 { color: #fb923c; border: 1px solid #fb923c; background: rgba(251,146,60,0.1); }
+        .badge-lt1 { color: #94a3b8; border: 1px solid #94a3b8; background: rgba(148,163,184,0.1); }
+        .badge-lt2 { color: #64748b; border: 1px solid #64748b; background: rgba(100,116,139,0.1); }
+        
+        .stat-circle {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: #1a1d2b; border: 1.5px solid #2d3142;
+            font-size: 9px; font-weight: 800; color: #94a3b8;
+        }
+
+        .elo-box {
+            width: 55px; height: 42px; background: #3a1c1c;
+            color: #ff5e5e; display: flex; align-items: center;
+            justify-content: center; font-weight: 900; border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .player-row { background: #11141d; border-radius: 4px; margin-bottom: 4px; }
+        .rank-number { font-style: italic; font-weight: 900; color: #4b5563; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+    <div class="max-w-5xl mx-auto">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-800 pb-6">
+            <div>
+                <h1 class="text-3xl font-black uppercase tracking-wider text-zinc-100">CHESS<span class="text-yellow-500">TIER</span></h1>
+                <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Official Leaderboard System</p>
+            </div>
+            <a href="play.html" class="bg-yellow-500 hover:bg-yellow-600 text-black font-black text-xs uppercase tracking-widest px-5 py-3 rounded-lg shadow-lg transition-colors flex items-center gap-2">
+                🤖 Đấu Với Bot AI
+            </a>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4 px-6 py-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest border-b border-zinc-800">
+            <div class="col-span-1">#</div>
+            <div class="col-span-5">Player</div>
+            <div class="col-span-2 text-center">Elo</div>
+            <div class="col-span-4 text-center">Tiers</div>
+        </div>
+
+        <div id="ranking-list" class="mt-2"></div>
+    </div>
+
+    <script>
+        function getTierInfo(score) {
+            if (score >= 450) return { label: "HT1", class: "badge-ht1" };
+            if (score >= 400) return { label: "LT1", class: "badge-lt1" };
+            if (score >= 340) return { label: "HT2", class: "badge-ht2" };
+            if (score >= 280) return { label: "LT2", class: "badge-lt2" };
+            return { label: "HT3", class: "badge-ht3" };
+        }
+
+        function getRankName(totalElo) {
+            if (totalElo >= 1500) return "MASTER";
+            if (totalElo >= 1000) return "SEMI MASTER";
+            if (totalElo >= 600) return "PRO";
+            return "BEGINNER";
+        }
+
+        function statCircle(label, score) {
+            const tier = getTierInfo(score);
+            const shortNames = { intel: 'INT', biq: 'BIQ', tac: 'TAC', exp: 'EXP' };
+            return `
+                <div class="flex flex-col items-center gap-1">
+                    <div class="stat-circle">${shortNames[label]}</div>
+                    <span class="${tier.class} text-[8px] font-black px-1.5 py-0.5 rounded min-w-[30px] text-center">${tier.label}</span>
+                </div>
+            `;
+        }
+
+        function render(data) {
+            const container = document.getElementById('ranking-list');
+            container.innerHTML = data.map((p, index) => {
+                const totalElo = p.intel + p.biq + p.tac + p.exp;
+                const rankName = getRankName(totalElo);
+
+                return `
+                <div class="player-row grid grid-cols-12 gap-4 px-6 py-4 items-center">
+                    <div class="col-span-1 rank-number text-lg">${index + 1}.</div>
+                    
+                    <div class="col-span-5 flex items-center gap-4">
+                        <div class="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center font-black text-zinc-500 uppercase">
+                            ${p.name ? p.name.charAt(0) : "?"}
+                        </div>
+                        <div>
+                            <div class="font-bold text-base text-zinc-100">${p.name}</div>
+                            <div class="text-[9px] text-zinc-500 font-bold uppercase tracking-wider italic">${rankName}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-2 flex justify-center">
+                        <div class="elo-box">${totalElo}</div>
+                    </div>
+
+                    <div class="col-span-4 flex justify-center gap-4">
+                        ${statCircle("intel", p.intel)}
+                        ${statCircle("biq", p.biq)}
+                        ${statCircle("tac", p.tac)}
+                        ${statCircle("exp", p.exp)}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        async function init() {
+            try {
+                const res = await fetch('players.json');
+                if (!res.ok) throw new Error('Không tìm thấy file players.json');
+                const data = await res.json();
+                data.sort((a, b) => (b.intel+b.biq+b.tac+b.exp) - (a.intel+a.biq+a.tac+a.exp));
+                render(data);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
