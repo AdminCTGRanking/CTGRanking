@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChessTier Bot | AI Analyzer</title>
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    
     <style>
-        /* Giao diện nền tối chuẩn Dark Mode */
         body { 
             background-color: #0b0e14 !important; 
             color: #ffffff !important; 
@@ -19,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* Khung chứa layout chia đôi màn hình */
         .grid-layout { 
             display: flex; 
             flex-direction: column; 
@@ -34,7 +34,6 @@
             .grid-layout { flex-direction: row !important; align-items: center; } 
         }
 
-        /* Cột chứa bàn cờ */
         .col-board { 
             flex: 1.2; 
             display: flex; 
@@ -43,13 +42,11 @@
             justify-content: center; 
         }
 
-        /* Cột chứa bảng điểm số */
         .col-stats { 
             flex: 0.8; 
             width: 100%; 
         }
 
-        /* Panel thông số */
         .stat-panel { 
             background: #11141d; 
             border: 1px solid #2d3142; 
@@ -65,7 +62,6 @@
             margin-bottom: 12px; 
         }
 
-        /* Thanh tiến trình phần trăm năng lực */
         .bar-bg { 
             width: 100%; 
             background-color: #1e293b; 
@@ -81,19 +77,20 @@
             transition: width 0.5s ease-in-out; 
         }
 
-        /* ÉP BUỘC BÀN CỜ PHẢI HIỂN THỊ KÍCH THƯỚC (QUAN TRỌNG) */
+        /* KHUNG CHỨA BÀN CỜ ĐẢM BẢO HIỂN THỊ ĐẸP MẮT */
         #myBoard { 
             width: 100% !important; 
-            max-width: 440px; 
-            min-width: 290px; 
-            min-height: 290px; 
+            max-width: 420px; 
+            min-width: 280px; 
             margin: 0 auto; 
-            display: block !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 4px solid #2d3142;
+            border-radius: 6px;
+            overflow: hidden;
         }
 
         .hidden { display: none !important; }
 
-        /* Nút bấm công nghệ */
         .btn-main { 
             width: 100%; 
             background-color: #eab308; 
@@ -122,27 +119,28 @@
             font-size: 14px;
             box-sizing: border-box; 
         }
-
-        /* Định dạng các ô cờ dự phòng khi mất link CSS ngoài */
-        .board-b72b1 { position: relative; direction: ltr; box-sizing: border-box; border: 5px solid #2d3142; border-radius: 8px; overflow: hidden; }
-        .white-1e1d7 { background-color: #f0d9b5 !important; color: #b58863 !important; }
-        .black-3c85d { background-color: #b58863 !important; color: #f0d9b5 !important; }
-        .square-55d63 { float: left; position: relative; user-select: none; -webkit-user-select: none; }
-        .notation-322f9 { cursor: default; font-size: 11px; font-weight: bold; position: absolute; }
-        .alpha-d2270 { bottom: 2px; right: 4px; }
-        .numeric-fc462 { top: 2px; left: 4px; }
+        
+        a.back-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+        }
+        a.back-link:hover { color: #eab308; }
     </style>
     
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    
-    <script src="js/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
 </head>
 <body>
 
     <div id="login-screen" class="stat-panel" style="width: 100%; max-width: 380px; text-align: center; margin: auto;">
+        <a href="index.html" class="back-link">← Quay lại Bảng xếp hạng</a>
         <h2 style="color: #eab308; letter-spacing: 2px; margin: 0 0 8px 0; font-size: 24px;">CHESSTIER BOT</h2>
-        <p style="font-size: 11px; color: #94a3b8; margin: 0 0 25px 0; font-weight: bold; tracking-wide: 0.5px;">NHẬP TÊN ĐỂ PHÂN TÍCH CHỈ SỐ AI</p>
+        <p style="font-size: 11px; color: #94a3b8; margin: 0 0 25px 0; font-weight: bold;">NHẬP TÊN ĐỂ PHÂN TÍCH CHỈ SỐ AI</p>
         
         <input type="text" id="playerNameInput" placeholder="TÊN CỦA BẠN..." class="input-field">
         <button onclick="startGameWithPlayer()" class="btn-main">Bắt đầu đấu</button>
@@ -158,7 +156,7 @@
         <div class="col-stats">
             <div class="stat-panel">
                 <div class="flex-between" style="border-bottom: 1px solid #2d3142; padding-bottom: 12px; margin-bottom: 20px;">
-                    <span id="display-name" style="font-weight: bold; color: #f1f5f9; font-size: 16px; letter-spacing: 0.5px;">PLAYER</span>
+                    <span id="display-name" style="font-weight: bold; color: #f1f5f9; font-size: 16px;">PLAYER</span>
                     <span style="font-size: 10px; background: #2d3142; color: #94a3b8; padding: 4px 10px; border-radius: 4px; font-weight: bold;">BOT AI V1.0</span>
                 </div>
 
@@ -184,7 +182,7 @@
 
                 <div style="text-align: center; border-top: 1px solid #2d3142; padding-top: 18px; margin-top: 10px;">
                     <span style="font-size: 10px; color: #64748b; font-weight: bold; letter-spacing: 1px;">DỰ ĐOÁN CẤP BẬC</span>
-                    <div id="predicted-rank" style="font-size: 22px; font-weight: 900; color: #475569; margin-top: 6px; font-style: italic; letter-spacing: 0.5px;">CHƯA XÁC ĐỊNH</div>
+                    <div id="predicted-rank" style="font-size: 22px; font-weight: 900; color: #475569; margin-top: 6px; font-style: italic;">CHƯA XÁC ĐỊNH</div>
                 </div>
             </div>
             
@@ -207,16 +205,11 @@
             $('#login-screen').addClass('hidden');
             $('#game-screen').removeClass('hidden');
             
-            // Khởi tạo bàn cờ sau khi DOM render xong
+            // Kích hoạt bàn cờ sau khi đổi màn hình
             setTimeout(initChessBoard, 150);
         }
 
         function initChessBoard() {
-            if (typeof Chessboard === 'undefined') {
-                setTimeout(initChessBoard, 200);
-                return;
-            }
-
             board = Chessboard('myBoard', {
                 draggable: true,
                 position: 'start',
@@ -234,11 +227,10 @@
                     setTimeout(makeBotMove, 600);
                 },
                 onSnapEnd: () => board.position(game.fen()),
-                pieceTheme: 'assets/img/chesspieces/wikipedia/{piece}.png'
+                // Tải trực tiếp ảnh quân cờ tiêu chuẩn từ dữ liệu đám mây chính thức của ChessboardJS
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
             });
             
-            // Buộc kích thước bàn cờ bung đều theo khung
-            board.resize();
             lastMoveTime = Date.now();
         }
 
@@ -268,8 +260,8 @@
             let totalElo = fInt + fBiq + fTac + fExp;
             let rank = "BEGINNER";
             if (totalElo >= 1500) rank = "MASTER";
-            else if (totalElo >= 1000) rank = "PRO";
-            else if (totalElo >= 600) rank = "AMATEUR";
+            else if (totalElo >= 1000) rank = "SEMI MASTER";
+            else if (totalElo >= 600) rank = "PRO";
             
             $('#predicted-rank').html(rank).css('color', '#eab308');
         }
