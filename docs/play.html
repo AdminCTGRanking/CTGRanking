@@ -5,114 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChessTier Bot | AI Analyzer</title>
     
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.min.css">
     <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
     
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    
     <script src="js/chessboard-1.0.0.min.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { background-color: #0b0e14; color: #ffffff; font-family: 'Inter', sans-serif; }
-        .stat-panel { background: #11141d; border: 1px solid #2d3142; }
-        
-        /* Đảm bảo khung bao ngoài của bàn cờ luôn nổi bật và có kích thước */
-        #myBoard {
-            display: block !important;
-            min-height: 320px;
-            min-width: 320px;
-        }
-        .board-b72b1 {
-            border: 4px solid #262421 !important;
-            border-radius: 8px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        }
-        .white-1e1d7 { background-color: #eeeed2 !important; color: #769656 !important; }
-        .black-3c85d { background-color: #769656 !important; color: #eeeed2 !important; }
-        .notation-322f9 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 11px; }
-    </style>
 </head>
-<body class="p-4 md:p-10 flex items-center justify-center min-h-screen" id="main-body">
+<body>
 
-    <div id="login-screen" class="max-w-md w-full p-8 rounded-xl stat-panel text-center space-y-6 shadow-2xl">
-        <h2 class="text-2xl font-black tracking-widest text-gray-300 uppercase">CHESS<span class="text-yellow-500">TIER</span> BOT</h2>
-        <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Vui lòng nhập tên của bạn để lưu chỉ số AI</p>
+    <div id="login-screen" class="stat-panel" style="max-w: 400px; text-align: center; margin: auto;">
+        <h2 style="color: #ca8a04; letter-spacing: 2px; margin-bottom: 5px;">CHESSTIER BOT</h2>
+        <p style="font-size: 11px; color: #94a3b8; margin-bottom: 20px;">NHẬP TÊN ĐỂ PHÂN TÍCH CHỈ SỐ AI</p>
         
-        <input type="text" id="playerNameInput" placeholder="TÊN CỦA BẠN..." 
-            class="w-full bg-gray-950 border border-gray-800 rounded-lg py-3 px-4 text-sm font-bold tracking-widest text-center focus:outline-none focus:border-yellow-500 transition-colors uppercase text-gray-200">
-        
-        <button onclick="startGameWithPlayer()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-black py-3 rounded-lg transition-colors tracking-widest text-sm uppercase">
-            Bắt đầu đấu
-        </button>
-
-        <div class="pt-2 border-t border-gray-800">
-            <a href="index.html" class="text-xs text-gray-500 font-bold hover:text-gray-300 transition-colors uppercase tracking-wider block">
-                ← Quay lại Bảng xếp hạng
-            </a>
-        </div>
+        <input type="text" id="playerNameInput" placeholder="TÊN CỦA BẠN..." class="input-field">
+        <button onclick="startGameWithPlayer()" class="btn-main">Bắt đầu đấu</button>
     </div>
 
-    <div id="game-screen" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-center hidden">
-        <div class="md:col-span-7 flex flex-col items-center justify-center min-h-[450px]">
-            <h2 class="text-xl font-black uppercase tracking-wider mb-4 text-gray-400">Hệ Thống Đánh Giá Chỉ Số AI</h2>
-            
-            <div class="w-full max-w-[450px] px-2">
-                <div id="myBoard" class="w-full"></div>
-            </div>
-            
-            <p id="status" class="mt-4 text-sm font-semibold text-yellow-500">Đến lượt bạn...</p>
+    <div id="game-screen" class="grid-layout hidden">
+        <div class="col-board">
+            <h3 style="color: #94a3b8; margin-bottom: 15px; font-size: 16px;">HỆ THỐNG ĐÁNH GIÁ CHỈ SỐ AI</h3>
+            <div id="myBoard"></div>
+            <p id="status" style="color: #eab308; font-weight: bold; margin-top: 15px;">Đến lượt bạn...</p>
         </div>
 
-        <div class="md:col-span-5 space-y-4 w-full">
-            <div class="p-6 rounded-xl stat-panel space-y-4">
-                <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                    <h3 id="display-name" class="text-md font-black uppercase text-gray-200 tracking-wide">PLAYER</h3>
-                    <a href="index.html" class="text-[9px] bg-gray-800 text-gray-400 font-bold px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors">BXH CHÍNH</a>
-                </div>
-                
-                <div>
-                    <div class="flex justify-between text-[11px] font-bold text-gray-400 mb-1">
-                        <span>🧠 INT (Intelligence)</span>
-                        <span id="int-val" class="text-blue-400 font-bold">0</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden"><div id="int-bar" class="bg-blue-500 h-full w-0 transition-all duration-500"></div></div>
+        <div class="col-stats">
+            <div class="stat-panel">
+                <div class="flex-between" style="border-bottom: 1px solid #2d3142; padding-bottom: 10px; margin-bottom: 15px;">
+                    <span id="display-name" style="font-weight: bold; color: #f1f5f9;">PLAYER</span>
+                    <span style="font-size: 11px; background: #334155; padding: 4px 8px; border-radius: 4px;">BOT AI</span>
                 </div>
 
-                <div>
-                    <div class="flex justify-between text-[11px] font-bold text-gray-400 mb-1">
-                        <span>⚡ BIQ (Battle IQ)</span>
-                        <span id="biq-val" class="text-red-400 font-bold">0</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden"><div id="biq-bar" class="bg-red-500 h-full w-0 transition-all duration-500"></div></div>
+                <div style="margin-bottom: 12px;">
+                    <div class="flex-between" style="font-size: 12px; color: #94a3b8;"><span>🧠 INT (Intelligence)</span><span id="int-val" style="color:#3b82f6;">0</span></div>
+                    <div class="bar-bg"><div id="int-bar" class="bar-fill" style="background: #3b82f6;"></div></div>
                 </div>
 
-                <div>
-                    <div class="flex justify-between text-[11px] font-bold text-gray-400 mb-1">
-                        <span>🎯 TAC (Tactics)</span>
-                        <span id="tac-val" class="text-yellow-400 font-bold">0</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden"><div id="tac-bar" class="bg-yellow-500 h-full w-0 transition-all duration-500"></div></div>
+                <div style="margin-bottom: 12px;">
+                    <div class="flex-between" style="font-size: 12px; color: #94a3b8;"><span>⚡ BIQ (Battle IQ)</span><span id="biq-val" style="color:#ef4444;">0</span></div>
+                    <div class="bar-bg"><div id="biq-bar" class="bar-fill" style="background: #ef4444;"></div></div>
                 </div>
 
-                <div>
-                    <div class="flex justify-between text-[11px] font-bold text-gray-400 mb-1">
-                        <span>🔥 EXP (Experience)</span>
-                        <span id="exp-val" class="text-emerald-400 font-bold">0</span>
-                    </div>
-                    <div class="h-1.5 w-full bg-gray-900 rounded-full overflow-hidden"><div id="exp-bar" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div></div>
+                <div style="margin-bottom: 12px;">
+                    <div class="flex-between" style="font-size: 12px; color: #94a3b8;"><span>🎯 TAC (Tactics)</span><span id="tac-val" style="color:#eab308;">0</span></div>
+                    <div class="bar-bg"><div id="tac-bar" class="bar-fill" style="background: #eab308;"></div></div>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-gray-800 text-center">
-                    <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-widest">Dự đoán cấp bậc</span>
-                    <div id="predicted-rank" class="text-2xl font-black text-gray-600 mt-1 italic">CHƯA XÁC ĐỊNH</div>
+                <div style="margin-bottom: 15px;">
+                    <div class="flex-between" style="font-size: 12px; color: #94a3b8;"><span>🔥 EXP (Experience)</span><span id="exp-val" style="color:#10b981;">0</span></div>
+                    <div class="bar-bg"><div id="exp-bar" class="bar-fill" style="background: #10b981;"></div></div>
+                </div>
+
+                <div style="text-align: center; border-top: 1px solid #2d3142; padding-top: 15px;">
+                    <span style="font-size: 10px; color: #64748b; tracking-wide: 1px;">DỰ ĐOÁN CẤP BẬC</span>
+                    <div id="predicted-rank" style="font-size: 20px; font-weight: bold; color: #475569; margin-top: 5px; font-style: italic;">CHƯA XÁC ĐỊNH</div>
                 </div>
             </div>
-
-            <button onclick="resetGame()" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-lg transition-colors tracking-wider text-xs uppercase">
-                Chơi ván mới
-            </button>
+            
+            <button onclick="resetGame()" class="btn-main" style="background:#334155; color:#fff; margin-top: 15px;">Chơi ván mới</button>
         </div>
     </div>
 
@@ -121,120 +71,70 @@
         let game = new Chess();
         let $status = $('#status');
         let playerName = "";
-        
-        let totalMoves = 0;
-        let tacticalMoves = 0;
-        let accurateMoves = 0;
-        let lastMoveTime = Date.now();
-        let totalThinkTime = 0;
+        let totalMoves = 0, tacticalMoves = 0, accurateMoves = 0, totalThinkTime = 0, lastMoveTime = Date.now();
 
-        window.startGameWithPlayer = function() {
+        function startGameWithPlayer() {
             let inputName = $('#playerNameInput').val().trim();
-            if (!inputName) { alert("Vui lòng nhập tên tài khoản!"); return; }
+            if (!inputName) { alert("Vui lòng nhập tên!"); return; }
             playerName = inputName;
-            $('#display-name').html(playerName);
-            
+            $('#display-name').html(playerName.toUpperCase());
             $('#login-screen').addClass('hidden');
             $('#game-screen').removeClass('hidden');
-            $('#main-body').removeClass('flex items-center justify-center min-h-screen').addClass('block');
-            
-            // Ép hệ thống đợi đúng 100 mili-giây để DOM ổn định không gian rồi mới vẽ bàn cờ
-            setTimeout(initChessBoard, 100);
+            setTimeout(initChessBoard, 150);
         }
 
         function initChessBoard() {
-            // Kiểm tra an toàn xem đối tượng Chessboard local đã sẵn sàng trong bộ nhớ chưa
-            if (typeof Chessboard === 'undefined') {
-                console.error("Thư viện Chessboard chưa nạp kịp. Đang thử lại...");
-                setTimeout(initChessBoard, 200);
-                return;
-            }
-
             board = Chessboard('myBoard', {
-                draggable: true, 
+                draggable: true,
                 position: 'start',
-                onDragStart: onDragStart, 
-                onDrop: onDrop, 
-                onSnapEnd: onSnapEnd,
-                // Trỏ trực tiếp tới thư mục local chứa quân cờ của bạn
-                pieceTheme: 'assets/img/chesspieces/wikipedia/{piece}.png'
+                onDragStart: (src, pc) => !game.game_over() && pc.search(/^b/) === -1,
+                onDrop: (src, tgt) => {
+                    let move = game.move({ from: src, to: tgt, promotion: 'q' });
+                    if (move === null) return 'snapback';
+                    
+                    let thinkTime = (Date.now() - lastMoveTime) / 1000;
+                    totalThinkTime += thinkTime; totalMoves++;
+                    if (move.captured || move.san.includes('+')) tacticalMoves++;
+                    if (!move.captured && thinkTime < 3) accurateMoves++;
+
+                    $status.html('Bot đang tính toán...');
+                    setTimeout(makeBotMove, 600);
+                },
+                onSnapEnd: () => board.position(game.fen()),
+                pieceTheme: 'assets/pieces/{piece}.png'
             });
-            
-            // Ép buộc tính toán lại kích thước responsive để bung rộng ô cờ
             board.resize();
             lastMoveTime = Date.now();
-            $status.html(`Đến lượt bạn (${playerName})...`);
-        }
-
-        function onDragStart (source, piece, position, orientation) {
-            if (game.game_over()) return false;
-            if (piece.search(/^b/) !== -1) return false;
         }
 
         function makeBotMove() {
-            let possibleMoves = game.moves();
-            if (game.game_over()) { calculateFinalStats(); return; }
-
-            let randomIdx = Math.floor(Math.random() * possibleMoves.length);
-            game.move(possibleMoves[randomIdx]);
+            let moves = game.moves();
+            if (game.game_over()) { handleEnd(); return; }
+            game.move(moves[Math.floor(Math.random() * moves.length)]);
             board.position(game.fen());
-            
             $status.html(`Đến lượt bạn (${playerName})...`);
             lastMoveTime = Date.now();
-            
-            if (game.game_over()) calculateFinalStats();
+            if (game.game_over()) handleEnd();
         }
 
-        function onDrop (source, target) {
-            let move = game.move({ from: source, to: target, promotion: 'q' });
-            if (move === null) return 'snapback';
-
-            let thinkTime = (Date.now() - lastMoveTime) / 1000;
-            totalThinkTime += thinkTime;
-            totalMoves++;
-
-            if (move.captured) tacticalMoves += 1; 
-            if (move.san.includes('+')) tacticalMoves += 1;
-            if (!move.captured && thinkTime < 3) accurateMoves += 1;
-
-            $status.html('Bot đang tính toán nước đi...');
-            window.setTimeout(makeBotMove, 600);
-        }
-
-        function onSnapEnd () { board.position(game.fen()); }
-
-        function calculateFinalStats() {
+        function handleEnd() {
             $status.html('TRẬN ĐẤU KẾT THÚC!');
-            let finalInt = Math.min(500, Math.max(100, (accurateMoves / (totalMoves || 1)) * 350 + 150));
-            let finalTac = Math.min(500, Math.max(100, (tacticalMoves * 45) + 120));
-            let avgTime = totalThinkTime / (totalMoves || 1);
-            let finalBiq = Math.min(500, Math.max(100, 500 - (avgTime * 30)));
-            let finalExp = Math.min(500, Math.max(100, (totalMoves * 15) + 100));
+            let fInt = Math.min(500, Math.max(100, (accurateMoves / (totalMoves || 1)) * 350 + 150));
+            let fTac = Math.min(500, Math.max(100, (tacticalMoves * 45) + 120));
+            let fBiq = Math.min(500, Math.max(100, 500 - ((totalThinkTime / (totalMoves || 1)) * 30)));
+            let fExp = Math.min(500, Math.max(100, (totalMoves * 15) + 100));
 
-            updateUI('int', finalInt); updateUI('biq', finalBiq);
-            updateUI('tac', finalTac); updateUI('exp', finalExp);
-
-            let totalElo = finalInt + finalBiq + finalTac + finalExp;
-            let rank = "BEGINNER";
-            if (totalElo >= 1500) rank = "MASTER";
-            else if (totalElo >= 1000) rank = "SEMI MASTER";
-            else if (totalElo >= 600) rank = "PRO";
-            $('#predicted-rank').html(rank).addClass('text-yellow-500 text-3xl font-black animate-pulse');
-        }
-
-        function updateUI(id, val) {
-            let rounded = Math.round(val);
-            $(`#${id}-val`).html(rounded + " pt");
-            $(`#${id}-bar`).css('width', (val / 500) * 100 + '%');
+            $('#int-val').html(Math.round(fInt)+" pt"); $('#int-bar').css('width', (fInt/500)*100+'%');
+            $('#biq-val').html(Math.round(fBiq)+" pt"); $('#biq-bar').css('width', (fBiq/500)*100+'%');
+            $('#tac-val').html(Math.round(fTac)+" pt"); $('#tac-bar').css('width', (fTac/500)*100+'%');
+            $('#exp-val').html(Math.round(fExp)+" pt"); $('#exp-bar').css('width', (fExp/500)*100+'%');
+            $('#predicted-rank').html("MASTER").css('color', '#eab308');
         }
 
         function resetGame() {
-            game.reset(); board.start();
-            totalMoves = 0; tacticalMoves = 0; accurateMoves = 0; totalThinkTime = 0;
-            ['int', 'biq', 'tac', 'exp'].forEach(id => {
-                $(`#${id}-val`).html("0"); $(`#${id}-bar`).css('width', '0%');
-            });
-            $('#predicted-rank').html("CHƯA XÁC ĐỊNH").removeClass('text-yellow-500 text-3xl font-black animate-pulse');
+            game.reset(); board.start(); totalMoves = 0; tacticalMoves = 0; accurateMoves = 0; totalThinkTime = 0;
+            ['int', 'biq', 'tac', 'exp'].forEach(id => { $(`#${id}-val`).html("0"); $(`#${id}-bar`).css('width', '0%'); });
+            $('#predicted-rank').html("CHƯA XÁC ĐỊNH").css('color', '#475569');
             $status.html(`Đến lượt bạn (${playerName})...`);
             lastMoveTime = Date.now();
         }
