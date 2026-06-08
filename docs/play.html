@@ -134,7 +134,7 @@
             board = Chessboard('myBoard', {
                 draggable: true, position: 'start',
                 onDragStart: onDragStart, onDrop: onDrop, onSnapEnd: onSnapEnd,
-                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+                pieceTheme: 'assets/img/chesspieces/wikipedia/{piece}.png'
             });
             lastMoveTime = Date.now();
             $status.html(`Đến lượt bạn (${playerName})...`);
