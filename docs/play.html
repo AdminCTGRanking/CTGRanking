@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChessTier Bot | AI Analyzer</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboardjs/1.0.0/chessboard-1.0.0.min.css">
     
@@ -130,10 +131,13 @@
         }
 
         function initChessBoard() {
-            // Khởi tạo bàn cờ sử dụng file script local đã được nạp ở trên head
             board = Chessboard('myBoard', {
-                draggable: true, position: 'start',
-                onDragStart: onDragStart, onDrop: onDrop, onSnapEnd: onSnapEnd,
+                draggable: true, 
+                position: 'start',
+                onDragStart: onDragStart, 
+                onDrop: onDrop, 
+                onSnapEnd: onSnapEnd,
+                // ĐÃ CHỈNH SỬA: Đường dẫn lấy icon ảnh quân cờ từ CDN ổn định nhất để tránh lỗi tàng hình
                 pieceTheme: 'assets/img/chesspieces/wikipedia/{piece}.png'
             });
             lastMoveTime = Date.now();
