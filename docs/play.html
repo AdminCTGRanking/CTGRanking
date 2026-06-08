@@ -101,7 +101,7 @@
                     setTimeout(makeBotMove, 600);
                 },
                 onSnapEnd: () => board.position(game.fen()),
-                pieceTheme: 'assets/pieces/{piece}.png'
+                pieceTheme: 'assets/img/chesspieces/wikipedia/{piece}.png'
             });
             board.resize();
             lastMoveTime = Date.now();
