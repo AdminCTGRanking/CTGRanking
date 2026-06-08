@@ -17,6 +17,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { background-color: #0b0e14; color: #ffffff; font-family: 'Inter', sans-serif; }
         .stat-panel { background: #11141d; border: 1px solid #2d3142; }
+        
+        /* Đảm bảo khung bao ngoài của bàn cờ luôn nổi bật và có kích thước */
+        #myBoard {
+            display: block !important;
+            min-height: 320px;
+            min-width: 320px;
+        }
         .board-b72b1 {
             border: 4px solid #262421 !important;
             border-radius: 8px !important;
@@ -48,13 +55,17 @@
     </div>
 
     <div id="game-screen" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-center hidden">
-        <div class="md:col-span-7 flex flex-col items-center">
+        <div class="md:col-span-7 flex flex-col items-center justify-center min-h-[450px]">
             <h2 class="text-xl font-black uppercase tracking-wider mb-4 text-gray-400">Hệ Thống Đánh Giá Chỉ Số AI</h2>
-            <div id="myBoard" class="w-full max-w-[450px]" style="width: 100%;"></div>
+            
+            <div class="w-full max-w-[450px] px-2">
+                <div id="myBoard" class="w-full"></div>
+            </div>
+            
             <p id="status" class="mt-4 text-sm font-semibold text-yellow-500">Đến lượt bạn...</p>
         </div>
 
-        <div class="md:col-span-5 space-y-4">
+        <div class="md:col-span-5 space-y-4 w-full">
             <div class="p-6 rounded-xl stat-panel space-y-4">
                 <div class="flex justify-between items-center border-b border-gray-800 pb-2">
                     <h3 id="display-name" class="text-md font-black uppercase text-gray-200 tracking-wide">PLAYER</h3>
@@ -127,19 +138,30 @@
             $('#game-screen').removeClass('hidden');
             $('#main-body').removeClass('flex items-center justify-center min-h-screen').addClass('block');
             
-            initChessBoard();
+            // Ép hệ thống đợi đúng 100 mili-giây để DOM ổn định không gian rồi mới vẽ bàn cờ
+            setTimeout(initChessBoard, 100);
         }
 
         function initChessBoard() {
+            // Kiểm tra an toàn xem đối tượng Chessboard local đã sẵn sàng trong bộ nhớ chưa
+            if (typeof Chessboard === 'undefined') {
+                console.error("Thư viện Chessboard chưa nạp kịp. Đang thử lại...");
+                setTimeout(initChessBoard, 200);
+                return;
+            }
+
             board = Chessboard('myBoard', {
                 draggable: true, 
                 position: 'start',
                 onDragStart: onDragStart, 
                 onDrop: onDrop, 
                 onSnapEnd: onSnapEnd,
-                // ĐÃ CHỈNH SỬA: Đường dẫn lấy icon ảnh quân cờ từ CDN ổn định nhất để tránh lỗi tàng hình
-                pieceTheme: 'assets/img/chesspieces/wikipedia/{piece}.png'
+                // Trỏ trực tiếp tới thư mục local chứa quân cờ của bạn
+                pieceTheme: 'assets/pieces/{piece}.png'
             });
+            
+            // Ép buộc tính toán lại kích thước responsive để bung rộng ô cờ
+            board.resize();
             lastMoveTime = Date.now();
             $status.html(`Đến lượt bạn (${playerName})...`);
         }
